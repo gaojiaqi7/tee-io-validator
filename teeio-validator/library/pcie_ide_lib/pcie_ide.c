@@ -1318,9 +1318,48 @@ void dump_rootport_registers(uint8_t *kcbar_addr, uint8_t rp_stream_index, int c
 {
     dump_kcbar((INTEL_KEYP_ROOT_COMPLEX_KCBAR *)kcbar_addr, rp_stream_index);
     dump_ecap(cfg_space_fd, ide_id, ecap_offset, ide_type);
+
+    // Q: dump flit mode status:
+
+    uint32_t pcie_cap_offset = get_cap_offset(cfg_space_fd, PCIE_CAPABILITY_ID);
+    uint32_t offset;
+    // TEEIO_DEBUG((TEEIO_DEBUG_INFO, "PCIE Capability Offset: 0x%02x\n", pcie_cap_offset));
+
+    offset = pcie_cap_offset + 0x02;
+    PCIE_CAP pcie_cap;
+    pcie_cap.raw = device_pci_read_16(offset, cfg_space_fd);
+    TEEIO_PRINT(("[RP]Flit Mode Supported is %s .\n", pcie_cap.flit_mode_supported ? "on" : "off"));
+
+    offset = pcie_cap_offset + 0x10;
+    PCIE_LINK_CTRL pcie_link_ctrl;
+    pcie_link_ctrl.raw = device_pci_read_16(offset, cfg_space_fd);
+    TEEIO_PRINT(("[RP]Flit Mode Disable is %s .\n", pcie_link_ctrl.flit_mode_disable ? "set" : "clear"));
+
+    offset = pcie_cap_offset + 0x32;
+    PCIE_LINK_STATUS2 pcie_link_status2;
+    pcie_link_status2.raw = device_pci_read_16(offset, cfg_space_fd);
+    TEEIO_PRINT(("[RP]Flit Mode Status is %s .\n", pcie_link_status2.flit_mode_status ? "enabled" : "disabled"));
 }
 
 void dump_dev_registers(int cfg_space_fd, uint8_t ide_id, uint32_t ecap_offset, TEST_IDE_TYPE ide_type)
 {
     dump_ecap(cfg_space_fd, ide_id, ecap_offset, ide_type);
+
+    uint32_t pcie_cap_offset = get_cap_offset(cfg_space_fd, PCIE_CAPABILITY_ID);
+    uint32_t offset;
+
+    offset = pcie_cap_offset + 0x02;
+    PCIE_CAP pcie_cap;
+    pcie_cap.raw = device_pci_read_16(offset, cfg_space_fd);
+    TEEIO_PRINT(("[Dev]Flit Mode Supported is %s .\n", pcie_cap.flit_mode_supported ? "on" : "off"));
+
+    offset = pcie_cap_offset + 0x10;
+    PCIE_LINK_CTRL pcie_link_ctrl;
+    pcie_link_ctrl.raw = device_pci_read_16(offset, cfg_space_fd);
+    TEEIO_PRINT(("[Dev]Flit Mode Disable is %s .\n", pcie_link_ctrl.flit_mode_disable ? "set" : "clear"));
+
+    offset = pcie_cap_offset + 0x32;
+    PCIE_LINK_STATUS2 pcie_link_status2;
+    pcie_link_status2.raw = device_pci_read_16(offset, cfg_space_fd);
+    TEEIO_PRINT(("[Dev]Flit Mode Status is %s .\n", pcie_link_status2.flit_mode_status ? "enabled" : "disabled"));
 }
