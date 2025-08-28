@@ -235,6 +235,7 @@ bool parse_keyp_table(ide_common_test_port_context_t *port_context, INTEL_KEYP_P
   uint32_t offset = 0;
   uint32_t size = 0;
   uint64_t kcbar_addr = 0;
+  TEEIO_DEBUG((TEEIO_DEBUG_INFO, "Entering parse_keyp_table.\n"));
 
   if (port_context == NULL || port_context->port->port_type != IDE_PORT_TYPE_ROOTPORT)
   {
@@ -280,13 +281,19 @@ bool parse_keyp_table(ide_common_test_port_context_t *port_context, INTEL_KEYP_P
     TEEIO_ASSERT(offset + kcu->Length <= size);
     if (kcu->ProtocolType != keyp_protocol)
     {
+      TEEIO_DEBUG((TEEIO_DEBUG_INFO, "kcu->ProtocolType %d != keyp_protocol %d\n", kcu->ProtocolType, keyp_protocol));
+      TEEIO_DEBUG((TEEIO_DEBUG_INFO, "offset %d, kcu->Length %d\n", offset, kcu->Length));
       offset += kcu->Length;
       continue;
     }
 
+    TEEIO_DEBUG((TEEIO_DEBUG_INFO, "kcu->RootPortCount %d\n", kcu->RootPortCount));
+
     for (i = 0; i < kcu->RootPortCount; i++)
     {
       krpi = (INTEL_KEYP_ROOT_PORT_INFORMATION *)(buffer + offset + sizeof(INTEL_KEYP_KEY_CONFIGURATION_UNIT) + i * sizeof(INTEL_KEYP_ROOT_PORT_INFORMATION));
+        TEEIO_DEBUG((TEEIO_DEBUG_INFO, "krpi[%d]: bus %d, device %d, function %d\n", i, krpi->Bus, krpi->Bits.Device, krpi->Bits.Function));
+        TEEIO_DEBUG((TEEIO_DEBUG_INFO, "port_context: bus %d, device %d, function %d\n", port_context->port->bus, port_context->port->device, port_context->port->function));
       if (krpi->Bus == port_context->port->bus && krpi->Bits.Device == port_context->port->device && krpi->Bits.Function == port_context->port->function)
       {
         found = true;
@@ -296,6 +303,7 @@ bool parse_keyp_table(ide_common_test_port_context_t *port_context, INTEL_KEYP_P
 
     if (found)
     {
+      TEEIO_DEBUG((TEEIO_DEBUG_INFO, "found matching root port in KEYP table.\n"));
       kcbar_addr = kcu->RegisterBaseAddr;
       break;
     }
@@ -305,6 +313,7 @@ bool parse_keyp_table(ide_common_test_port_context_t *port_context, INTEL_KEYP_P
 
   if (!found || kcbar_addr == 0)
   {
+    TEEIO_DEBUG((TEEIO_DEBUG_INFO, "not found matching root port in KEYP table.\n"));
     return false;
   }
 
