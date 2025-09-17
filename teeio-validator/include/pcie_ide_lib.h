@@ -47,6 +47,11 @@ bool scan_devices_at_bus(
     uint8_t bus);
 
 /**
+ * Check if the PCIE Flit Mode is enabled on the given port context
+ */
+bool pcie_check_flit_mode_enabled(ide_common_test_port_context_t *port_context);
+
+/**
  * Initialize rootcomplex port
  * root_port and upper_port is the same port
  */
