@@ -125,7 +125,12 @@ void cxl_ide_test_full_ide_stream_teardown(void *test_context)
     TEEIO_DEBUG((TEEIO_DEBUG_INFO, "KSetStop is not supported.\n"));
   }
 
-  // clear LinkEncEnable on the RootPort side
   INTEL_KEYP_CXL_ROOT_COMPLEX_KCBAR *kcbar_ptr = (INTEL_KEYP_CXL_ROOT_COMPLEX_KCBAR *)upper_port->mapped_kcbar_addr;
+
+  // Set RXTRANSTOINSECURESTATE & TXTRANSTOINSECURESTATE on the RootPort side
+  cxl_cfg_rp_txrx_transto_insecure_state(kcbar_ptr, CXL_IDE_STREAM_DIRECTION_RX, true);
+  cxl_cfg_rp_txrx_transto_insecure_state(kcbar_ptr, CXL_IDE_STREAM_DIRECTION_TX, true);
+
+  // clear LinkEncEnable on the RootPort side
   cxl_cfg_rp_linkenc_enable(kcbar_ptr, false);
 }
