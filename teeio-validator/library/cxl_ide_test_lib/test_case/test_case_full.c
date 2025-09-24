@@ -42,7 +42,7 @@ bool cxl_ide_test_full_ide_stream_setup(void *test_context)
   TEEIO_ASSERT(configuration);
 
   if (!cxl_ide_query_port_index(group_context)) {
-    return false;
+    group_context->common.lower_port.port->port_index = 0;
   }
 
   return cxl_setup_ide_stream(group_context->spdm_doe.doe_context, group_context->spdm_doe.spdm_context,
