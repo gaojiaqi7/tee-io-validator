@@ -44,7 +44,7 @@ bool cxl_ide_test_keyrefresh_setup(void *test_context)
 
   // Query the port index
   if (!cxl_ide_query_port_index(group_context)) {
-    return false;
+    group_context->common.lower_port.port->port_index = 0;
   }
 
   return cxl_setup_ide_stream(spdm_doe->doe_context, spdm_doe->spdm_context,
@@ -102,7 +102,7 @@ void cxl_ide_test_keyrefresh_run(void *test_context)
     } else {
       // Query the port index
       if (!cxl_ide_query_port_index(group_context)) {
-        break;
+        group_context->common.lower_port.port->port_index = 0;
       }
 
       res = cxl_setup_ide_stream(spdm_doe->doe_context, spdm_doe->spdm_context,
